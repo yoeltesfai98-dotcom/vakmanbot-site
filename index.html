@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VakmanBot — Mis een oproep, niet de klant.</title>
+<style>
+  :root{
+    --bg:#0b0f19;
+    --card:#111726;
+    --border:rgba(255,255,255,0.08);
+    --border-strong:rgba(255,255,255,0.14);
+    --text:#f5f7fb;
+    --text-dim:#a7b0c2;
+    --text-faint:#6b7488;
+    --green:#22c55e;
+    --green-dim:#16a34a;
+    --green-bg:rgba(34,197,94,0.12);
+    --red-bg:rgba(239,68,68,0.12);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{color:inherit;text-decoration:none;}
+
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px;}
+
+  /* ---------- HEADER ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(11,15,25,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+
+  header .wrap{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    min-height:72px;
+    gap:16px;
+  }
+
+  .logo{
+    display:flex;align-items:center;gap:10px;
+    font-weight:700;font-size:18px;letter-spacing:-0.01em;
+    white-space:nowrap;
+  }
+
+  .logo-mark{
+    width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(135deg,var(--green) 0%,#0ea968 100%);
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:800;color:#04140b;flex-shrink:0;
+  }
+
+  .nav-links{
+    display:flex;
+    align-items:center;
+    gap:26px;
+  }
+
+  .nav-links a{
+    font-size:14px;
+    font-weight:500;
+    color:var(--text-dim);
+    transition:color .15s ease;
+  }
+
+  .nav-links a:hover{color:var(--text);}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:11px 20px;border-radius:10px;font-weight:600;font-size:14.5px;
+    cursor:pointer;border:1px solid transparent;
+    transition:transform .15s ease, background .15s ease, border-color .15s ease;
+    white-space:nowrap;
+  }
+  .btn:active{transform:scale(0.97);}
+
+  .btn-primary{background:var(--green);color:#04170d;}
+  .btn-primary:hover{background:#2ee06e;}
+
+  .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border-strong);}
+  .btn-ghost:hover{border-color:rgba(255,255,255,0.32);background:rgba(255,255,255,0.03);}
+
+  .btn-header{padding:9px 18px;font-size:13.5px;flex-shrink:0;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:76px 0 64px;
+    background:
+      radial-gradient(650px 320px at 15% -10%, rgba(34,197,94,0.14), transparent 60%),
+      radial-gradient(500px 300px at 90% 0%, rgba(34,197,94,0.08), transparent 60%);
+    border-bottom:1px solid var(--border);
+  }
+
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    gap:56px;align-items:center;
+  }
+
+  .badge{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--green-bg);border:1px solid rgba(34,197,94,0.3);
+    color:var(--green);font-size:13px;font-weight:600;
+    padding:6px 14px;border-radius:999px;margin-bottom:22px;
+  }
+
+  h1{font-size:46px;line-height:1.1;letter-spacing:-0.02em;font-weight:800;margin-bottom:20px;}
+
+  .hero-sub{font-size:16.5px;color:var(--text-dim);max-width:520px;margin-bottom:32px;}
+
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn-lg{padding:15px 26px;font-size:15.5px;}
+
+  /* ---------- PHONE MOCKUP (FORMULIER LINK) ---------- */
+  .phone-wrap{display:flex;justify-content:center;}
+
+  .phone{
+    width:320px;background:var(--card);
+    border:1px solid var(--border-strong);border-radius:32px;padding:14px;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.02) inset;
+  }
+
+  .phone-screen{
+    background:#080b13;border-radius:22px;padding:18px 14px 20px;
+    min-height:460px;display:flex;flex-direction:column;gap:10px;
+  }
+
+  .phone-topbar{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:11px;color:var(--text-faint);padding:0 4px 6px;
+  }
+
+  .phone-contact{
+    text-align:center;font-size:12.5px;color:var(--text-dim);font-weight:600;
+    padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:4px;
+  }
+
+  .missed-call{
+    background:var(--red-bg);border:1px solid rgba(239,68,68,0.28);
+    color:#fca5a5;font-size:12px;padding:9px 12px;border-radius:12px;line-height:1.35;
+  }
+  .missed-call strong{color:#fecaca;display:block;font-size:12px;margin-bottom:2px;}
+
+  .bubble{max-width:92%;padding:10px 12px;border-radius:14px;font-size:12.5px;line-height:1.4;}
+
+  .bubble-out{
+    background:linear-gradient(135deg,var(--green-dim),var(--green));
+    color:#052913;align-self:flex-start;border-bottom-left-radius:4px;font-weight:500;
+  }
+
+  .bubble-time{font-size:10px;color:var(--text-faint);margin-top:2px;}
+
+  .phone-form-preview{
+    background:#131b2e;border:1px solid rgba(255,255,255,0.1);
+    border-radius:12px;padding:10px 12px;margin-top:2px;
+  }
+
+  .phone-form-label{
+    font-size:10.5px;font-weight:700;color:var(--green);
+    text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;
+  }
+
+  .phone-form-input{
+    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+    border-radius:6px;padding:5px 8px;font-size:11px;color:var(--text-dim);margin-bottom:6px;
+  }
+
+  .phone-form-btn{
+    background:var(--green);color:#04170d;text-align:center;
+    padding:6px;border-radius:6px;font-size:11px;font-weight:800;
+  }
+
+  .phone-footer{margin-top:auto;text-align:center;}
+
+  .impact-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--green-bg);border:1px solid rgba(34,197,94,0.3);
+    color:var(--green);font-size:11.5px;font-weight:600;
+    padding:7px 12px;border-radius:999px;
+  }
+
+  /* ---------- STATS ---------- */
+  .stats{padding:56px 0;border-bottom:1px solid var(--border);}
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+
+  .stat-card{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:16px;padding:28px 22px;text-align:center;
+  }
+
+  .stat-num{font-size:38px;font-weight:800;color:var(--green);letter-spacing:-0.02em;margin-bottom:6px;}
+  .stat-label{font-size:14px;color:var(--text-dim);font-weight:500;}
+  .stat-source{font-size:11px;color:var(--text-faint);margin-top:6px;font-style:italic;}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:72px 0;}
+  .section-border{border-bottom:1px solid var(--border);}
+  .section-head{text-align:center;max-width:640px;margin:0 auto 48px;}
+
+  .eyebrow{
+    color:var(--green);font-size:13px;font-weight:700;
+    letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px;
+  }
+
+  h2{font-size:32px;font-weight:800;letter-spacing:-0.02em;margin-bottom:12px;}
+  .section-desc{color:var(--text-dim);font-size:15.5px;}
+
+  /* ---------- HOW IT WORKS ---------- */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+
+  .step-card{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:16px;padding:28px 24px;position:relative;
+  }
+
+  .step-num{
+    width:40px;height:40px;border-radius:11px;
+    background:var(--green-bg);border:1px solid rgba(34,197,94,0.3);color:var(--green);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:16px;margin-bottom:18px;
+  }
+
+  .step-card h3{font-size:17px;font-weight:700;margin-bottom:8px;}
+  .step-card p{font-size:14.5px;color:var(--text-dim);}
+
+  /* ---------- BENEFITS ---------- */
+  .benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+
+  .benefit-card{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:16px;padding:28px 24px;
+  }
+
+  .benefit-icon{
+    width:38px;height:38px;border-radius:10px;background:var(--green-bg);
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px;margin-bottom:16px;
+  }
+
+  .benefit-card h3{font-size:16.5px;font-weight:700;margin-bottom:8px;}
+  .benefit-card p{font-size:14px;color:var(--text-dim);}
+
+  /* ---------- PRICING TIERS ---------- */
+  .pricing-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:28px;
+    align-items:stretch;
+    max-width:920px;
+    margin:0 auto;
+  }
+
+  .tier-card{
+    display:flex;
+    flex-direction:column;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:22px;
+    padding:36px 32px;
+    position:relative;
+  }
+
+  .tier-card.featured{
+    background:linear-gradient(180deg,var(--card),#0d1220);
+    border:1px solid rgba(34,197,94,0.4);
+    box-shadow:0 0 0 1px rgba(34,197,94,0.06), 0 30px 70px -25px rgba(34,197,94,0.22);
+  }
+
+  .tier-tag{
+    position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+    font-size:12px;font-weight:700;padding:5px 14px;border-radius:999px;
+    letter-spacing:0.02em;white-space:nowrap;
+  }
+
+  .tier-tag.standard{background:#1b2233;color:var(--text-dim);border:1px solid var(--border-strong);}
+  .tier-tag.recommended{background:var(--green);color:#04170d;}
+
+  .tier-label{font-size:12.5px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px;}
+  .tier-card.featured .tier-label{color:var(--green);}
+
+  .tier-name{font-size:22px;font-weight:800;letter-spacing:-0.01em;margin-bottom:10px;}
+  .tier-desc{font-size:14.5px;color:var(--text-dim);margin-bottom:24px;min-height:64px;}
+
+  .tier-price-block{
+    background:rgba(255,255,255,0.02);border:1px solid var(--border);
+    border-radius:14px;padding:18px 20px;margin-bottom:26px;
+  }
+
+  .tier-price-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:14px;}
+  .tier-price-row + .tier-price-row{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+  .tier-price-label{color:var(--text-faint);font-weight:500;}
+  .tier-price-value{color:var(--text);font-weight:700;text-align:right;}
+  .tier-card.featured .tier-price-value{color:var(--green);}
+
+  .tier-list{list-style:none;display:flex;flex-direction:column;gap:13px;margin-bottom:28px;flex:1;}
+  .tier-list li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--text);line-height:1.4;}
+  .tier-list li.included-note{color:var(--text-dim);font-style:italic;font-size:13.5px;}
+
+  .check{
+    width:19px;height:19px;border-radius:50%;background:var(--green-bg);color:var(--green);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:800;flex-shrink:0;margin-top:1px;
+  }
+
+  .tier-card .btn{width:100%;margin-top:auto;}
+
+  /* ---------- ESTIMATOR ---------- */
+  .vb-estimator-card{
+    max-width:740px;margin:0 auto;background:var(--card);
+    border:1px solid var(--border-strong);border-radius:20px;
+    padding:36px 30px;box-shadow:0 20px 50px rgba(0,0,0,0.4);
+  }
+
+  .vb-est-step{
+    font-size:13px;font-weight:700;text-transform:uppercase;
+    letter-spacing:0.05em;color:var(--green);margin-bottom:12px;
+  }
+
+  .vb-est-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px;}
+
+  .vb-est-option{
+    background:rgba(255,255,255,0.02);border:1px solid var(--border);
+    border-radius:14px;padding:16px;cursor:pointer;transition:all .2s ease;
+  }
+  .vb-est-option:hover{border-color:rgba(34,197,94,0.4);}
+  .vb-est-option.active{background:var(--green-bg);border-color:var(--green);box-shadow:0 0 0 1px var(--green);}
+  .vb-est-title{font-size:14px;font-weight:700;margin-bottom:4px;}
+  .vb-est-fee{font-size:18px;font-weight:800;color:var(--text);}
+  .vb-est-option.active .vb-est-fee{color:var(--green);}
+  .vb-est-sub{font-size:11.5px;color:var(--text-dim);margin-top:2px;}
+
+  .vb-est-addons{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+
+  .vb-addon-row{
+    display:flex;justify-content:space-between;align-items:center;
+    background:rgba(255,255,255,0.02);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px;cursor:pointer;transition:all .2s ease;
+  }
+  .vb-addon-row:hover{border-color:rgba(34,197,94,0.4);}
+  .vb-addon-row.active{background:rgba(34,197,94,0.06);border-color:var(--green);}
+
+  .vb-addon-info{display:flex;align-items:center;gap:12px;}
+
+  .vb-addon-check{
+    width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border-strong);
+    display:flex;align-items:center;justify-content:center;transition:all .2s ease;flex-shrink:0;
+  }
+  .vb-addon-row.active .vb-addon-check{background:var(--green);border-color:var(--green);}
+  .vb-addon-row.active .vb-addon-check::after{content:"✓";font-size:12px;font-weight:900;color:#04170d;}
+
+  .vb-addon-desc{font-size:12px;color:var(--text-dim);margin-top:2px;}
+  .vb-addon-price{font-size:14px;font-weight:700;color:var(--text-dim);white-space:nowrap;padding-left:12px;}
+  .vb-addon-row.active .vb-addon-price{color:var(--green);}
+
+  .vb-calc-summary{
+    background:rgba(0,0,0,0.25);border:1px dashed var(--border-strong);
+    border-radius:14px;padding:18px 22px;display:flex;justify-content:space-between;
+    align-items:center;margin-bottom:22px;
+  }
+
+  .vb-total-display{font-size:32px;font-weight:800;color:var(--green);letter-spacing:-0.02em;}
+
+  /* ---------- FOOTER CTA ---------- */
+  .final-cta{padding:72px 0;text-align:center;}
+  .final-cta h2{margin-bottom:14px;}
+  .final-cta p{color:var(--text-dim);margin-bottom:28px;font-size:15.5px;}
+
+  footer{border-top:1px solid var(--border);}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:860px){
+    h1{font-size:34px;}
+    .hero-grid{grid-template-columns:1fr;gap:40px;}
+    .hero-sub{max-width:none;}
+    .phone-wrap{order:-1;}
+    .phone{width:280px;}
+    .stats-grid,.steps,.benefits{grid-template-columns:1fr;}
+    .pricing-grid{grid-template-columns:1fr;gap:44px;}
+    .nav-links{display:none;}
+    h2{font-size:26px;}
+    section{padding:52px 0;}
+    .hero{padding:48px 0 40px;}
+    header .wrap{min-height:64px;}
+    .logo{font-size:16px;}
+    .tier-card{padding:32px 24px;}
+    .tier-desc{min-height:auto;}
+  }
+
+  @media (max-width:600px){
+    .vb-est-grid{grid-template-columns:1fr;}
+    .vb-estimator-card{padding:24px 16px;}
+    .vb-calc-summary{flex-direction:column;align-items:flex-start;gap:8px;}
+  }
+
+  @media (max-width:420px){
+    .btn-header{padding:8px 12px;font-size:12.5px;}
+    .logo-mark{width:30px;height:30px;font-size:11px;}
+    .tier-price-row{flex-direction:column;align-items:flex-start;gap:2px;}
+    .tier-price-value{text-align:left;}
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER MET NAVIGATIE EN ACTIEKNOP -->
+<header>
+  <div class="wrap">
+    <div class="logo">
+      <span class="logo-mark">VB</span>
+      <span>VakmanBot</span>
+    </div>
+
+    <nav class="nav-links">
+      <a href="#hoe-het-werkt">Hoe het werkt</a>
+      <a href="#demo-video">Video</a>
+      <a href="#prijzen">Prijzen</a>
+      <a href="#demo">Contact</a>
+    </nav>
+
+    <a href="#demo" class="btn btn-primary btn-header">Live Demo</a>
+  </div>
+</header>
+
+<!-- HERO SECTIE -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="badge">⚡ Nooit meer een klant mislopen</span>
+      <h1>Mis een oproep, niet de klant.</h1>
+      <p class="hero-sub">
+        VakmanBot reageert automatisch per SMS zodra je een oproep mist — terwijl jij met je handen op het dak of onder een ketel zit. Werkt via een slimme doorschakeling vanaf je huidige mobiele of vaste bedrijfsnummer: je behoudt gewoon je eigen nummer.
+      </p>
+      <div class="hero-ctas">
+        <a href="https://wa.me/31685245514?text=Hoi%20VakmanBot%2C%20ik%20wil%20graag%20een%20korte%20live%20demo%20zien." class="btn btn-primary btn-lg" target="_blank" rel="noopener">Vraag een live demo aan →</a>
+        <a href="#hoe-het-werkt" class="btn btn-ghost btn-lg">Bekijk hoe het werkt</a>
+      </div>
+    </div>
+
+    <!-- TELEFOON MOCKUP MET FORMULIER INSTELLIG -->
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-topbar">
+            <span>14:32</span>
+            <span>●●●●●</span>
+          </div>
+          <div class="phone-contact">Jansen Loodgieters</div>
+
+          <div class="missed-call">
+            <strong>📵 Gemiste oproep</strong>
+            06 12 34 56 78 — Automatisch opgevangen om 14:32
+          </div>
+
+          <div class="bubble bubble-out">
+            Hoi! Bedankt voor je oproep naar Jansen Loodgieters. We zitten momenteel op een klus en kunnen niet opnemen.<br><br>
+            Geef je vraag of spoedklus direct door via ons formulier, dan pakken we het meteen op:<br>
+            <span style="text-decoration:underline; font-weight:700;">vakman.link/jansen</span> 📋
+          </div>
+          <div class="bubble-time" style="align-self:flex-start;">14:32:06</div>
+
+          <!-- FORMULIER PREVIEW -->
+          <div class="phone-form-preview">
+            <div class="phone-form-label">Snelle Intake</div>
+            <div class="phone-form-input">Type klus: Lekkage / Spoed</div>
+            <div class="phone-form-input">Voorkeurstijd: Morgenochtend</div>
+            <div class="phone-form-btn">Versturen &amp; Klus Vastleggen ✓</div>
+          </div>
+
+          <div class="phone-footer">
+            <span class="impact-badge">✓ Klant vult direct gegevens in</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats section-border">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num">27%</div>
+        <div class="stat-label">Gemiste oproepen tijdens werkuren in het MKB</div>
+        <div class="stat-source">Bron: MKB Bereikbaarheidsonderzoek</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">&lt; 10 sec.</div>
+        <div class="stat-label">Reactietijd voor de eerste opvolg-SMS</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">24/7</div>
+        <div class="stat-label">Altijd actief, ook in de avond en het weekend</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOE HET WERKT -->
+<section id="hoe-het-werkt" class="section-border">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Hoe het werkt</div>
+      <h2>In drie simpele stappen</h2>
+      <p class="section-desc">Geen nieuwe telefoon, geen ingewikkelde installatie. Wij regelen de techniek, jij blijft bereikbaar.</p>
+    </div>
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>Klant belt</h3>
+        <p>Klant belt je bestaande bedrijfsnummer terwijl jij bezig bent.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>Geen gehoor?</h3>
+        <p>Het systeem vangt de gemiste oproep geruisloos op via slimme doorschakeling.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>Direct formulier</h3>
+        <p>Binnen enkele seconden ontvangt de klant een SMS met jouw formulier om de klus vast te leggen.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESPONSIVE LOOM VIDEO -->
+<section id="demo-video" class="section-border" style="padding:64px 0; background:rgba(255,255,255,0.01);">
+  <div class="wrap">
+    <div class="section-head" style="margin-bottom:32px;">
+      <div class="eyebrow">Video Demonstratie</div>
+      <h2>Zie VakmanBot in 30 seconden in actie</h2>
+      <p class="section-desc">Bekijk precies wat er gebeurt wanneer een klant belt en jij met je handen bezig bent.</p>
+    </div>
+
+    <div style="max-width:820px; margin:0 auto;">
+      <div style="position:relative; padding-bottom:56.25%; height:0; border-radius:18px; overflow:hidden; border:1px solid var(--border-strong); box-shadow:0 24px 60px rgba(0,0,0,0.6);">
+        <iframe
+          src="https://www.loom.com/embed/9b34d0875d584cfd8f8fe9f7c926ca46?hide_owner=true&hide_share=true&hide_title=true&hideEmbedTopBar=true"
+          frameborder="0"
+          webkitallowfullscreen
+          mozallowfullscreen
+          allowfullscreen
+          style="position:absolute; top:0; left:0; width:100%; height:100%; border:none;">
+        </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section class="section-border">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Waarom VakmanBot</div>
+      <h2>Redenen om te kiezen</h2>
+    </div>
+    <div class="benefits">
+      <div class="benefit-card">
+        <div class="benefit-icon">🚀</div>
+        <h3>Eerlijke levertijd</h3>
+        <p>Binnen 24-48 uur operationeel — wij regelen de doorschakeling en testen samen de eerste oproep.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">👤</div>
+        <h3>Geen personeelskosten</h3>
+        <p>Vangt leads en spoedklussen op zonder dat je een receptioniste hoeft aan te nemen.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">🔒</div>
+        <h3>AVG-proof &amp; betrouwbaar</h3>
+        <p>Inclusief standaard verwerkersovereenkomst conform de Nederlandse privacywetgeving.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRIJZEN TIERS -->
+<section id="prijzen">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Prijzen &amp; implementatie</div>
+      <h2>Kies de automatisering die past bij jouw bedrijf</h2>
+      <p class="section-desc">Geen uurtje-factuurtje of losse plugins, maar een complete turn-key implementatie inclusief doorlopend beheer en optimalisatie.</p>
+    </div>
+
+    <div class="pricing-grid">
+
+      <!-- TIER 1 -->
+      <div class="tier-card">
+        <span class="tier-tag standard">Essentieel</span>
+        <div class="tier-label">Tier 1</div>
+        <div class="tier-name">Lead Recovery Systeem</div>
+        <p class="tier-desc">Voor installateurs en vakmensen die direct willen stoppen met het verliezen van leads aan concurrenten.</p>
+
+        <div class="tier-price-block">
+          <div class="tier-price-row">
+            <span class="tier-price-label">Setup</span>
+            <span class="tier-price-value">€ 2.500 eenmalige implementatie</span>
+          </div>
+          <div class="tier-price-row">
+            <span class="tier-price-label">Retainer</span>
+            <span class="tier-price-value">€ 500 / maand doorlopend beheer</span>
+          </div>
+        </div>
+
+        <ul class="tier-list">
+          <li><span class="check">✓</span> Automatische SMS-opvolging bij elke gemiste oproep (&lt; 10 sec.)</li>
+          <li><span class="check">✓</span> Slimme doorschakeling vanaf mobiel of vast bedrijfsnummer</li>
+          <li><span class="check">✓</span> Intakeformulier &amp; CRM leadoverzicht op maat ingericht</li>
+          <li><span class="check">✓</span> Volledige webhook-koppeling en scenario-monitoring</li>
+          <li><span class="check">✓</span> Maandelijks prestatierapport van opgevangen omzet</li>
+          <li><span class="check">✓</span> Persoonlijke support via WhatsApp</li>
+        </ul>
+
+        <a href="#demo" class="btn btn-ghost btn-lg">Plan een kennismaking voor Tier 1 →</a>
+      </div>
+
+      <!-- TIER 2 -->
+      <div class="tier-card featured">
+        <span class="tier-tag recommended">Meest gekozen</span>
+        <div class="tier-label">Tier 2 · Aanbevolen voor groei</div>
+        <div class="tier-name">Full-Funnel Sales &amp; Review Engine</div>
+        <p class="tier-desc">Van gemiste oproep tot getekende offerte en 5-sterren reviews op de automatische piloot.</p>
+
+        <div class="tier-price-block">
+          <div class="tier-price-row">
+            <span class="tier-price-label">Setup</span>
+            <span class="tier-price-value">€ 4.000 eenmalige implementatie</span>
+          </div>
+          <div class="tier-price-row">
+            <span class="tier-price-label">Retainer</span>
+            <span class="tier-price-value">€ 1.200 – € 1.500 / maand</span>
+          </div>
+        </div>
+
+        <ul class="tier-list">
+          <li class="included-note">Inclusief alles uit het Lead Recovery Systeem, plus:</li>
+          <li><span class="check">✓</span> Geautomatiseerde offerte-opvolging via SMS &amp; WhatsApp</li>
+          <li><span class="check">✓</span> Slimme review-verzamel flow na afronding van een klus (Google Reviews booster)</li>
+          <li><span class="check">✓</span> Multi-step AI kwalificatie van spoedklussen vs. reguliere aanvragen</li>
+          <li><span class="check">✓</span> Proactief beheer, A/B-testen van berichtteksten en workflow-optimalisatie</li>
+          <li><span class="check">✓</span> Prioriteitssupport en direct noodlijn-contact</li>
+        </ul>
+
+        <a href="#demo" class="btn btn-primary btn-lg">Plan een strategiegesprek →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- INTERACTIVE ESTIMATOR -->
+<section class="section-border" style="padding:72px 0;">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Interactieve Investering Scaler</div>
+      <h2>Bereken direct jouw implementatie</h2>
+      <p class="section-desc">Selecteer je basissysteem en eventuele uitbreidingen voor een exacte berekening van de eenmalige inrichting.</p>
+    </div>
+
+    <div class="vb-estimator-card">
+      <div class="vb-est-step">1. Kies jouw fundament (Setup)</div>
+      <div class="vb-est-grid" id="vbSetupTiers">
+        <div class="vb-est-option active" data-price="2500" data-retainer="€ 500/mnd">
+          <div class="vb-est-title">Tier 1: Lead Recovery</div>
+          <div class="vb-est-fee">€ 2.500 setup</div>
+          <div class="vb-est-sub">Inclusief € 500/mnd beheer</div>
+        </div>
+        <div class="vb-est-option" data-price="4000" data-retainer="€ 1.200 - € 1.500/mnd">
+          <div class="vb-est-title">Tier 2: Full-Funnel Engine</div>
+          <div class="vb-est-fee">€ 4.000 setup</div>
+          <div class="vb-est-sub">Inclusief € 1.200+/mnd beheer</div>
+        </div>
+      </div>
+
+      <div class="vb-est-step">2. Gewenste add-ons &amp; koppelingen</div>
+      <div class="vb-est-addons" id="vbAddons">
+        <div class="vb-addon-row" data-price="350">
+          <div class="vb-addon-info">
+            <span class="vb-addon-check"></span>
+            <div>
+              <strong>Extra monteur / mobiel doorschakelen</strong>
+              <div class="vb-addon-desc">Schakel meerdere telefoonnummers van buitendienstcollega's door.</div>
+            </div>
+          </div>
+          <div class="vb-addon-price">+€ 350</div>
+        </div>
+
+        <div class="vb-addon-row" data-price="450">
+          <div class="vb-addon-info">
+            <span class="vb-addon-check"></span>
+            <div>
+              <strong>WhatsApp Business API integratie</strong>
+              <div class="vb-addon-desc">Volg leads op via officiële WhatsApp-templates in plaats van puur SMS.</div>
+            </div>
+          </div>
+          <div class="vb-addon-price">+€ 450</div>
+        </div>
+
+        <div class="vb-addon-row" data-price="500">
+          <div class="vb-addon-info">
+            <span class="vb-addon-check"></span>
+            <div>
+              <strong>Koppeling ERP / Factuurpakket</strong>
+              <div class="vb-addon-desc">Schiet goedgekeurde leads direct door naar bijv. Moneybird, Rompslomp of Exact.</div>
+            </div>
+          </div>
+          <div class="vb-addon-price">+€ 500</div>
+        </div>
+      </div>
+
+      <div class="vb-calc-summary">
+        <div>
+          <div style="font-size:13px; color:var(--text-dim); margin-bottom:2px;">Totale eenmalige implementatie:</div>
+          <div class="vb-total-display" id="vbTotalCost">€ 2.500</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:12px; color:var(--text-faint);">Doorlopend beheer:</div>
+          <div id="vbRetainerDisplay" style="font-size:15px; font-weight:700; color:var(--green);">€ 500/mnd</div>
+        </div>
+      </div>
+
+      <a href="https://wa.me/31685245514?text=Hoi%20VakmanBot%2C%20ik%20wil%20graag%20een%20korte%20live%20demo%20zien." class="btn btn-primary btn-lg" target="_blank" rel="noopener" style="width:100%;">Vraag live demo aan voor deze samenstelling →</a>
+      <div style="text-align:center; font-size:11.5px; color:var(--text-faint); margin-top:12px;">
+        Prijzen zijn exclusief btw. Turn-key opgeleverd binnen 24-48 uur na akkoord.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CALL TO ACTION (LIVE DEMO) -->
+<section id="demo" class="final-cta section-border">
+  <div class="wrap">
+    <h2>Klaar om geen klant meer te missen?</h2>
+    <p>Ervaar zelf binnen 10 minuten hoe het werkt. We bellen een testnummer en laten je live zien hoe de lead direct via SMS en formulier wordt opgevangen.</p>
+    <a href="https://wa.me/31685245514?text=Hoi%20VakmanBot%2C%20ik%20wil%20graag%20een%20korte%20live%20demo%20zien." class="btn btn-primary btn-lg" target="_blank" rel="noopener">Vraag een live demo aan →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap" style="display:flex; flex-direction:column; align-items:center; gap:12px; font-size:13px; color:var(--text-faint); padding:36px 0;">
+    <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center; color:var(--text-dim); text-align:center;">
+      <span><strong>VakmanBot</strong></span>
+      <span>•</span>
+      <span>KVK: 42156045</span>
+      <span>•</span>
+      <span>Locatie: Hilversum, Nederland</span>
+      <span>•</span>
+      <a href="mailto:info@vakmanbot.nl" style="color:var(--text-dim); text-decoration:underline;">info@vakmanbot.nl</a>
+      <span>•</span>
+      <a href="tel:+31685245514" style="color:var(--text-dim); text-decoration:underline;">+31 6 85245514</a>
+      <span>•</span>
+      <a href="privacy.html" style="color: var(--text-dim); text-decoration: underline;">Privacyverklaring</a>
+    </div>
+    <div style="text-align:center; margin-top:4px;">
+      © 2026 VakmanBot.nl · Alle rechten voorbehouden.
+    </div>
+  </div>
+</footer>
+
+<!-- SCRIPT VOOR INTERACTIEVE CALCULATOR -->
+<script>
+  (function() {
+    let baseSetup = 2500;
+    let currentRetainer = "€ 500/mnd";
+    const tierOptions = document.querySelectorAll(".vb-est-option");
+    const addonRows = document.querySelectorAll(".vb-addon-row");
+    const totalDisplay = document.getElementById("vbTotalCost");
+    const retainerDisplay = document.getElementById("vbRetainerDisplay");
+
+    function updateEstimatorTotal() {
+      let total = baseSetup;
+      addonRows.forEach(function(row) {
+        if (row.classList.contains("active")) {
+          total += parseInt(row.getAttribute("data-price"), 10);
+        }
+      });
+      totalDisplay.textContent = "€ " + total.toLocaleString("nl-NL");
+      retainerDisplay.textContent = currentRetainer;
+    }
+
+    tierOptions.forEach(function(opt) {
+      opt.addEventListener("click", function() {
+        tierOptions.forEach(o => o.classList.remove("active"));
+        this.classList.add("active");
+        baseSetup = parseInt(this.getAttribute("data-price"), 10);
+        currentRetainer = this.getAttribute("data-retainer");
+        updateEstimatorTotal();
+      });
+    });
+
+    addonRows.forEach(function(row) {
+      row.addEventListener("click", function() {
+        this.classList.toggle("active");
+        updateEstimatorTotal();
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
